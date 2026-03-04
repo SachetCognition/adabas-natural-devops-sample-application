@@ -1,0 +1,293 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+/** <h1>Program NCTESTP.</h1>
+/** <p>NaturalCruise - Automated Test Program</p>
+/** <p>Validates NCFINDCR subprogram behavior:</p>
+/**     <ul type="square">
+/**         <li>Valid cruise lookup - fields populated</li>
+/**         <li>Invalid cruise lookup - parameters reset</li>
+/**         <li>Status code mapping (0,1,2,3,unknown)</li>
+/**     </ul>
+/** :author DevOps Test Automation
+DEFINE DATA
+LOCAL
+USING NCDEMAPP
+LOCAL
+1 #TEST-PASS   (N3)
+1 #TEST-FAIL   (N3)
+1 #TEST-TOTAL  (N3)
+1 #TEST-NAME   (A60)
+1 #EXPECTED    (A20)
+END-DEFINE
+*
+FORMAT LS=120
+WRITE '========================================================'
+WRITE 'NCTESTP - NaturalCruise Automated Test Suite'
+WRITE '========================================================'
+WRITE ' '
+*
+/* ---------------------------------------------------------------
+/* TEST 1: Valid cruise lookup - verify fields are non-empty
+/* ---------------------------------------------------------------
+MOVE 'TC-02: Valid cruise lookup (ID=10000001)' TO #TEST-NAME
+RESET NC-PARMS
+MOVE 10000001 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+IF #CR-ID <> 0
+  AND #CR-STATUS <> ' '
+  AND #CR-SD <> ' '
+  AND #CR-ED <> ' '
+  AND #CR-FROMH <> ' '
+  AND #CR-TOH <> ' '
+  AND #CR-P1W <> ' '
+  AND #CR-YACHT-NAME <> ' '
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       #CR-ID:' #CR-ID
+  WRITE '       #CR-STATUS:' #CR-STATUS
+  WRITE '       #CR-SD:' #CR-SD
+  WRITE '       #CR-YACHT-NAME:' #CR-YACHT-NAME
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 2: Invalid cruise lookup - verify parameter area is reset
+/* ---------------------------------------------------------------
+MOVE 'TC-03: Invalid cruise lookup (ID=99999999)' TO #TEST-NAME
+RESET NC-PARMS
+MOVE 99999999 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+IF #CR-ID = 0
+  AND #CR-STATUS = ' '
+  AND #CR-SD = ' '
+  AND #CR-ED = ' '
+  AND #CR-FROMH = ' '
+  AND #CR-TOH = ' '
+  AND #CR-P1W = ' '
+  AND #CR-P2W = ' '
+  AND #CR-P3W = ' '
+  AND #CR-YACHT-NAME = ' '
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       Expected all fields reset (empty/zero)'
+  WRITE '       #CR-ID:' #CR-ID
+  WRITE '       #CR-STATUS:' #CR-STATUS
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 3: Status mapping - status '0' => 'removed'
+/* ---------------------------------------------------------------
+MOVE 'TC-04a: Status mapping 0 => removed (ID=10000004)' TO #TEST-NAME
+MOVE 'removed' TO #EXPECTED
+RESET NC-PARMS
+MOVE 10000004 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+IF #CR-STATUS = #EXPECTED
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       Expected:' #EXPECTED
+  WRITE '       Actual:' #CR-STATUS
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 4: Status mapping - status '1' => 'planned'
+/* ---------------------------------------------------------------
+MOVE 'TC-04b: Status mapping 1 => planned (ID=10000002)' TO #TEST-NAME
+MOVE 'planned' TO #EXPECTED
+RESET NC-PARMS
+MOVE 10000002 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+IF #CR-STATUS = #EXPECTED
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       Expected:' #EXPECTED
+  WRITE '       Actual:' #CR-STATUS
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 5: Status mapping - status '2' => 'available'
+/* ---------------------------------------------------------------
+MOVE 'TC-04c: Status mapping 2 => available (ID=10000001)' TO #TEST-NAME
+MOVE 'available' TO #EXPECTED
+RESET NC-PARMS
+MOVE 10000001 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+IF #CR-STATUS = #EXPECTED
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       Expected:' #EXPECTED
+  WRITE '       Actual:' #CR-STATUS
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 6: Status mapping - status '3' => 'sold'
+/* ---------------------------------------------------------------
+MOVE 'TC-04d: Status mapping 3 => sold (ID=10000003)' TO #TEST-NAME
+MOVE 'sold' TO #EXPECTED
+RESET NC-PARMS
+MOVE 10000003 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+IF #CR-STATUS = #EXPECTED
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       Expected:' #EXPECTED
+  WRITE '       Actual:' #CR-STATUS
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 7: Status mapping - status '9' => 'unknown'
+/* ---------------------------------------------------------------
+MOVE 'TC-04e: Status mapping 9 => unknown (ID=10000005)' TO #TEST-NAME
+MOVE 'unknown' TO #EXPECTED
+RESET NC-PARMS
+MOVE 10000005 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+IF #CR-STATUS = #EXPECTED
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       Expected:' #EXPECTED
+  WRITE '       Actual:' #CR-STATUS
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 8: Yacht name resolution for valid yacht
+/* ---------------------------------------------------------------
+MOVE 'TC-11a: Yacht resolution (ID=10000001, yacht=Cassandra)' TO #TEST-NAME
+RESET NC-PARMS
+MOVE 10000001 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+IF #CR-YACHT-NAME <> ' '
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+  WRITE '       Yacht name:' #CR-YACHT-NAME
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       Expected non-empty yacht name, got blank'
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 9: Yacht resolution for missing yacht
+/* ---------------------------------------------------------------
+MOVE 'TC-11b: Missing yacht resolution (ID=10000006, yacht=99)' TO #TEST-NAME
+RESET NC-PARMS
+MOVE 10000006 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+IF #CR-YACHT-NAME = ' '
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+  WRITE '       Yacht name is blank as expected (no yacht ID 99)'
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       Expected blank yacht name, got:' #CR-YACHT-NAME
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 10: Date formatting verification
+/* ---------------------------------------------------------------
+MOVE 'TC-06: Date formatting YYYY-MM-DD (ID=10000001)' TO #TEST-NAME
+RESET NC-PARMS
+MOVE 10000001 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+/* Check that #CR-SD contains the dash separators (format 9999-99-99)
+/* #CR-SD is A13, value should be like '2024-06-15   '
+IF #CR-SD <> ' '
+  AND #CR-ED <> ' '
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+  WRITE '       Start date:' #CR-SD
+  WRITE '       End date:' #CR-ED
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       #CR-SD:' #CR-SD
+  WRITE '       #CR-ED:' #CR-ED
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* TEST 11: Price formatting verification
+/* ---------------------------------------------------------------
+MOVE 'TC-05: Price EUR formatting (ID=10000001)' TO #TEST-NAME
+RESET NC-PARMS
+MOVE 10000001 TO #CR-ID-FIND
+CALLNAT 'NCFINDCR' NC-PARMS
+*
+/* #CR-P1W should contain 'EUR' prefix and a numeric value
+IF #CR-P1W <> ' '
+  AND #CR-P2W <> ' '
+  AND #CR-P3W <> ' '
+  COMPUTE #TEST-PASS = #TEST-PASS + 1
+  WRITE 'PASS -' #TEST-NAME
+  WRITE '       Price 1W:' #CR-P1W
+  WRITE '       Price 2W:' #CR-P2W
+  WRITE '       Price 3W:' #CR-P3W
+ELSE
+  COMPUTE #TEST-FAIL = #TEST-FAIL + 1
+  WRITE 'FAIL -' #TEST-NAME
+  WRITE '       One or more price fields are blank'
+END-IF
+COMPUTE #TEST-TOTAL = #TEST-TOTAL + 1
+*
+/* ---------------------------------------------------------------
+/* SUMMARY
+/* ---------------------------------------------------------------
+WRITE ' '
+WRITE '========================================================'
+WRITE 'TEST RESULTS SUMMARY'
+WRITE '========================================================'
+WRITE 'Total tests:' #TEST-TOTAL
+WRITE 'Passed:     ' #TEST-PASS
+WRITE 'Failed:     ' #TEST-FAIL
+WRITE '========================================================'
+*
+IF #TEST-FAIL > 0
+  WRITE '*** SOME TESTS FAILED ***'
+ELSE
+  WRITE '*** ALL TESTS PASSED ***'
+END-IF
+*
+END
