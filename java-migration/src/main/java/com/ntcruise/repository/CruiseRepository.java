@@ -19,7 +19,8 @@ public interface CruiseRepository extends JpaRepository<Cruise, Long> {
      * Used by NCATENDP.NSP (line 36), NCATTOPP.NSP (line 29),
      * NCDEDISP.NSP (line 19), NCSYSVP.NSP (line 20).
      */
-    @Query("SELECT c FROM Cruise c LEFT JOIN FETCH c.yacht")
+    @Query(value = "SELECT c FROM Cruise c LEFT JOIN FETCH c.yacht",
+           countQuery = "SELECT COUNT(c) FROM Cruise c")
     Page<Cruise> findAllWithYacht(Pageable pageable);
 
     /**

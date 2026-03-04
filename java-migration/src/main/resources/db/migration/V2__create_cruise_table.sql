@@ -2,7 +2,7 @@
 
 CREATE TABLE cruise (
     cruise_id          BIGINT       NOT NULL PRIMARY KEY,  -- CI: CRUISE-ID (N8.0) - Descriptor
-    cruise_status      VARCHAR(1)   NOT NULL,              -- CK: CRUISE-STATUS (A1) - 0=planned,1=available,2=sold,3=removed
+    cruise_status      VARCHAR(1)   NOT NULL,              -- CK: CRUISE-STATUS (A1) - 0=removed,1=planned,2=available,3=sold
     start_date         BIGINT,                             -- CM: START-DATE (N8.0) - YYYYMMDD format - Descriptor
     start_time         BIGINT,                             -- CN: START-TIME (N6.0) - HHMMSS format
     end_date           BIGINT,                             -- CP: END-DATE (N8.0) - YYYYMMDD format - Descriptor
