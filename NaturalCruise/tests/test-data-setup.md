@@ -1,0 +1,386 @@
+# Test Data Setup Guide
+
+This document provides instructions and sample data for populating the Adabas test databases required by the NaturalCruise end-to-end test plan.
+
+---
+
+## Overview
+
+The NaturalCruise application uses two Adabas files:
+
+| File | Number | DBID | DDM | Description |
+|---|---|---|---|---|
+| NCCRUISE | 041 | 012 | `NCCRUISE` | Cruise records |
+| NCYACHT | 042 | 012 | `NCYACHT` | Yacht records |
+
+All test data must be loaded into these files before executing the test cases.
+
+---
+
+## Sample NCYACHT Records
+
+Load the following yacht records into Adabas file **042** (DBID 012):
+
+| YACHT-ID (N8) | YACHT-NAME (A30) | YACHT-TYPE (A30) | LENGTH (P3.2) | WIDTH (P3.2) | DRAFT (P3.2) | SAIL-SURFACE (P3.0) | MOTOR (P3.0) | HEAD-ROOM (P3.2) | BUNKS (P3.0) |
+|---|---|---|---|---|---|---|---|---|---|
+| 00000001 | Cassandra | Sailing Yacht | 15.50 | 4.80 | 2.10 | 120 | 50 | 1.95 | 8 |
+| 00000002 | Poseidon | Motor Yacht | 22.00 | 6.20 | 1.80 | 0 | 350 | 2.10 | 12 |
+| 00000003 | Athena | Catamaran | 12.80 | 7.50 | 1.20 | 95 | 40 | 1.85 | 6 |
+| 00000004 | Odysseus | Sailing Yacht | 18.30 | 5.10 | 2.50 | 180 | 75 | 2.00 | 10 |
+| 00000005 | Aphrodite | Motor Yacht | 28.00 | 7.00 | 2.00 | 0 | 500 | 2.20 | 16 |
+
+### Natural STORE Statements for NCYACHT
+
+```natural
+DEFINE DATA LOCAL
+1 NCYACHT VIEW OF NCYACHT
+  2 YACHT-ID    (N8.0)
+  2 YACHT-NAME  (A30)
+  2 YACHT-TYPE  (A30)
+  2 LENGTH      (P3.2)
+  2 WIDTH       (P3.2)
+  2 DRAFT       (P3.2)
+  2 SAIL-SURFACE (P3.0)
+  2 MOTOR       (P3.0)
+  2 HEAD-ROOM   (P3.2)
+  2 BUNKS       (P3.0)
+END-DEFINE
+*
+/* Yacht 1: Cassandra
+MOVE 00000001      TO NCYACHT.YACHT-ID
+MOVE 'Cassandra'   TO NCYACHT.YACHT-NAME
+MOVE 'Sailing Yacht' TO NCYACHT.YACHT-TYPE
+MOVE 15.50         TO NCYACHT.LENGTH
+MOVE 4.80          TO NCYACHT.WIDTH
+MOVE 2.10          TO NCYACHT.DRAFT
+MOVE 120           TO NCYACHT.SAIL-SURFACE
+MOVE 50            TO NCYACHT.MOTOR
+MOVE 1.95          TO NCYACHT.HEAD-ROOM
+MOVE 8             TO NCYACHT.BUNKS
+STORE NCYACHT
+END OF TRANSACTION
+*
+/* Yacht 2: Poseidon
+MOVE 00000002      TO NCYACHT.YACHT-ID
+MOVE 'Poseidon'    TO NCYACHT.YACHT-NAME
+MOVE 'Motor Yacht' TO NCYACHT.YACHT-TYPE
+MOVE 22.00         TO NCYACHT.LENGTH
+MOVE 6.20          TO NCYACHT.WIDTH
+MOVE 1.80          TO NCYACHT.DRAFT
+MOVE 0             TO NCYACHT.SAIL-SURFACE
+MOVE 350           TO NCYACHT.MOTOR
+MOVE 2.10          TO NCYACHT.HEAD-ROOM
+MOVE 12            TO NCYACHT.BUNKS
+STORE NCYACHT
+END OF TRANSACTION
+*
+/* Yacht 3: Athena
+MOVE 00000003      TO NCYACHT.YACHT-ID
+MOVE 'Athena'      TO NCYACHT.YACHT-NAME
+MOVE 'Catamaran'   TO NCYACHT.YACHT-TYPE
+MOVE 12.80         TO NCYACHT.LENGTH
+MOVE 7.50          TO NCYACHT.WIDTH
+MOVE 1.20          TO NCYACHT.DRAFT
+MOVE 95            TO NCYACHT.SAIL-SURFACE
+MOVE 40            TO NCYACHT.MOTOR
+MOVE 1.85          TO NCYACHT.HEAD-ROOM
+MOVE 6             TO NCYACHT.BUNKS
+STORE NCYACHT
+END OF TRANSACTION
+*
+/* Yacht 4: Odysseus
+MOVE 00000004      TO NCYACHT.YACHT-ID
+MOVE 'Odysseus'    TO NCYACHT.YACHT-NAME
+MOVE 'Sailing Yacht' TO NCYACHT.YACHT-TYPE
+MOVE 18.30         TO NCYACHT.LENGTH
+MOVE 5.10          TO NCYACHT.WIDTH
+MOVE 2.50          TO NCYACHT.DRAFT
+MOVE 180           TO NCYACHT.SAIL-SURFACE
+MOVE 75            TO NCYACHT.MOTOR
+MOVE 2.00          TO NCYACHT.HEAD-ROOM
+MOVE 10            TO NCYACHT.BUNKS
+STORE NCYACHT
+END OF TRANSACTION
+*
+/* Yacht 5: Aphrodite
+MOVE 00000005      TO NCYACHT.YACHT-ID
+MOVE 'Aphrodite'   TO NCYACHT.YACHT-NAME
+MOVE 'Motor Yacht' TO NCYACHT.YACHT-TYPE
+MOVE 28.00         TO NCYACHT.LENGTH
+MOVE 7.00          TO NCYACHT.WIDTH
+MOVE 2.00          TO NCYACHT.DRAFT
+MOVE 0             TO NCYACHT.SAIL-SURFACE
+MOVE 500           TO NCYACHT.MOTOR
+MOVE 2.20          TO NCYACHT.HEAD-ROOM
+MOVE 16            TO NCYACHT.BUNKS
+STORE NCYACHT
+END OF TRANSACTION
+*
+END
+```
+
+---
+
+## Sample NCCRUISE Records
+
+Load the following cruise records into Adabas file **041** (DBID 012). The records cover all status values (0-3) plus an invalid status (9) for testing the `DECIDE ON FIRST VALUE` logic in `NCFINDCR`.
+
+| CRUISE-ID (N8) | CRUISE-STATUS (A1) | START-DATE (N8) | START-TIME (N6) | END-DATE (N8) | END-TIME (N6) | START-HARBOR (A20) | DEST-HARBOR (A20) | ID-YACHT (N8) | PRICE-1W (P10.3) | PRICE-2W (P10.3) | PRICE-3W (P10.3) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 10000001 | 2 | 20240615 | 100000 | 20240622 | 180000 | Piraeus | Santorini | 00000001 | 1000.000 | 1800.000 | 2500.000 |
+| 10000002 | 1 | 20240701 | 090000 | 20240715 | 170000 | Rhodes | Bodrum | 00000002 | 2500.000 | 4500.000 | 6000.000 |
+| 10000003 | 3 | 20240501 | 080000 | 20240508 | 160000 | Mykonos | Paros | 00000003 | 800.000 | 1400.000 | 1900.000 |
+| 10000004 | 0 | 20240301 | 070000 | 20240308 | 150000 | Corfu | Dubrovnik | 00000004 | 1200.000 | 2200.000 | 3000.000 |
+| 10000005 | 9 | 20240815 | 110000 | 20240829 | 190000 | Samos | Kusadasi | 00000005 | 3000.000 | 5500.000 | 7500.000 |
+| 10000006 | 2 | 20250101 | 060000 | 20250108 | 140000 | Heraklion | Alexandria | 00000099 | 1500.000 | 2800.000 | 3800.000 |
+| 10000007 | 2 | 20241231 | 120000 | 20250107 | 200000 | Split | Venice | 00000001 | 900.000 | 1600.000 | 2200.000 |
+| 10000008 | 1 | 20240601 | 080000 | 20240615 | 180000 | Barcelona | Marseille | 00000002 | 1100.000 | 2000.000 | 2800.000 |
+
+### Key Test Data Characteristics
+
+| Record | Purpose | Notes |
+|---|---|---|
+| 10000001 | TC-02, TC-04 (status=2), TC-05, TC-06 | Standard "available" cruise with valid yacht (Cassandra) |
+| 10000002 | TC-04 (status=1) | "planned" cruise with Poseidon yacht |
+| 10000003 | TC-04 (status=3) | "sold" cruise with Athena yacht |
+| 10000004 | TC-04 (status=0) | "removed" cruise with Odysseus yacht |
+| 10000005 | TC-04 (status=9) | Invalid status - should show "unknown" |
+| 10000006 | TC-11 (missing yacht) | ID-YACHT = 00000099 has no matching NCYACHT record - tests edge case where yacht resolution returns empty |
+| 10000007 | TC-06 (year boundary) | Cruise spanning year boundary (Dec 31 to Jan 7) |
+| 10000008 | TC-07, TC-08 | Additional record for report pagination |
+| 99999999 | TC-03 (negative test) | This ID should **NOT** be loaded - used to test "No Cruise found" |
+
+### Natural STORE Statements for NCCRUISE
+
+```natural
+DEFINE DATA LOCAL
+1 NCCRUISE VIEW OF NCCRUISE
+  2 CRUISE-ID           (N8.0)
+  2 CRUISE-STATUS       (A1)
+  2 CRUISE-START
+    3 START-DATE         (N8.0)
+    3 START-TIME         (N6.0)
+  2 CRUISE-END
+    3 END-DATE           (N8.0)
+    3 END-TIME           (N6.0)
+  2 START-HARBOR        (A20)
+  2 DESTINATION-HARBOR  (A20)
+  2 ID-YACHT            (N8.0)
+  2 PRICES
+    3 PRICE-1W           (P10.3)
+    3 PRICE-2W           (P10.3)
+    3 PRICE-3W           (P10.3)
+END-DEFINE
+*
+/* Cruise 1: Available, Piraeus->Santorini, Cassandra
+MOVE 10000001    TO NCCRUISE.CRUISE-ID
+MOVE '2'         TO NCCRUISE.CRUISE-STATUS
+MOVE 20240615    TO NCCRUISE.START-DATE
+MOVE 100000      TO NCCRUISE.START-TIME
+MOVE 20240622    TO NCCRUISE.END-DATE
+MOVE 180000      TO NCCRUISE.END-TIME
+MOVE 'Piraeus'   TO NCCRUISE.START-HARBOR
+MOVE 'Santorini' TO NCCRUISE.DESTINATION-HARBOR
+MOVE 00000001    TO NCCRUISE.ID-YACHT
+MOVE 1000.000    TO NCCRUISE.PRICE-1W
+MOVE 1800.000    TO NCCRUISE.PRICE-2W
+MOVE 2500.000    TO NCCRUISE.PRICE-3W
+STORE NCCRUISE
+END OF TRANSACTION
+*
+/* Cruise 2: Planned, Rhodes->Bodrum, Poseidon
+MOVE 10000002    TO NCCRUISE.CRUISE-ID
+MOVE '1'         TO NCCRUISE.CRUISE-STATUS
+MOVE 20240701    TO NCCRUISE.START-DATE
+MOVE 090000      TO NCCRUISE.START-TIME
+MOVE 20240715    TO NCCRUISE.END-DATE
+MOVE 170000      TO NCCRUISE.END-TIME
+MOVE 'Rhodes'    TO NCCRUISE.START-HARBOR
+MOVE 'Bodrum'    TO NCCRUISE.DESTINATION-HARBOR
+MOVE 00000002    TO NCCRUISE.ID-YACHT
+MOVE 2500.000    TO NCCRUISE.PRICE-1W
+MOVE 4500.000    TO NCCRUISE.PRICE-2W
+MOVE 6000.000    TO NCCRUISE.PRICE-3W
+STORE NCCRUISE
+END OF TRANSACTION
+*
+/* Cruise 3: Sold, Mykonos->Paros, Athena
+MOVE 10000003    TO NCCRUISE.CRUISE-ID
+MOVE '3'         TO NCCRUISE.CRUISE-STATUS
+MOVE 20240501    TO NCCRUISE.START-DATE
+MOVE 080000      TO NCCRUISE.START-TIME
+MOVE 20240508    TO NCCRUISE.END-DATE
+MOVE 160000      TO NCCRUISE.END-TIME
+MOVE 'Mykonos'   TO NCCRUISE.START-HARBOR
+MOVE 'Paros'     TO NCCRUISE.DESTINATION-HARBOR
+MOVE 00000003    TO NCCRUISE.ID-YACHT
+MOVE 800.000     TO NCCRUISE.PRICE-1W
+MOVE 1400.000    TO NCCRUISE.PRICE-2W
+MOVE 1900.000    TO NCCRUISE.PRICE-3W
+STORE NCCRUISE
+END OF TRANSACTION
+*
+/* Cruise 4: Removed, Corfu->Dubrovnik, Odysseus
+MOVE 10000004    TO NCCRUISE.CRUISE-ID
+MOVE '0'         TO NCCRUISE.CRUISE-STATUS
+MOVE 20240301    TO NCCRUISE.START-DATE
+MOVE 070000      TO NCCRUISE.START-TIME
+MOVE 20240308    TO NCCRUISE.END-DATE
+MOVE 150000      TO NCCRUISE.END-TIME
+MOVE 'Corfu'     TO NCCRUISE.START-HARBOR
+MOVE 'Dubrovnik' TO NCCRUISE.DESTINATION-HARBOR
+MOVE 00000004    TO NCCRUISE.ID-YACHT
+MOVE 1200.000    TO NCCRUISE.PRICE-1W
+MOVE 2200.000    TO NCCRUISE.PRICE-2W
+MOVE 3000.000    TO NCCRUISE.PRICE-3W
+STORE NCCRUISE
+END OF TRANSACTION
+*
+/* Cruise 5: Invalid status (9), Samos->Kusadasi, Aphrodite
+MOVE 10000005    TO NCCRUISE.CRUISE-ID
+MOVE '9'         TO NCCRUISE.CRUISE-STATUS
+MOVE 20240815    TO NCCRUISE.START-DATE
+MOVE 110000      TO NCCRUISE.START-TIME
+MOVE 20240829    TO NCCRUISE.END-DATE
+MOVE 190000      TO NCCRUISE.END-TIME
+MOVE 'Samos'     TO NCCRUISE.START-HARBOR
+MOVE 'Kusadasi'  TO NCCRUISE.DESTINATION-HARBOR
+MOVE 00000005    TO NCCRUISE.ID-YACHT
+MOVE 3000.000    TO NCCRUISE.PRICE-1W
+MOVE 5500.000    TO NCCRUISE.PRICE-2W
+MOVE 7500.000    TO NCCRUISE.PRICE-3W
+STORE NCCRUISE
+END OF TRANSACTION
+*
+/* Cruise 6: Available, no matching yacht (ID-YACHT=99)
+MOVE 10000006    TO NCCRUISE.CRUISE-ID
+MOVE '2'         TO NCCRUISE.CRUISE-STATUS
+MOVE 20250101    TO NCCRUISE.START-DATE
+MOVE 060000      TO NCCRUISE.START-TIME
+MOVE 20250108    TO NCCRUISE.END-DATE
+MOVE 140000      TO NCCRUISE.END-TIME
+MOVE 'Heraklion' TO NCCRUISE.START-HARBOR
+MOVE 'Alexandria' TO NCCRUISE.DESTINATION-HARBOR
+MOVE 00000099    TO NCCRUISE.ID-YACHT
+MOVE 1500.000    TO NCCRUISE.PRICE-1W
+MOVE 2800.000    TO NCCRUISE.PRICE-2W
+MOVE 3800.000    TO NCCRUISE.PRICE-3W
+STORE NCCRUISE
+END OF TRANSACTION
+*
+/* Cruise 7: Available, year-boundary, Cassandra
+MOVE 10000007    TO NCCRUISE.CRUISE-ID
+MOVE '2'         TO NCCRUISE.CRUISE-STATUS
+MOVE 20241231    TO NCCRUISE.START-DATE
+MOVE 120000      TO NCCRUISE.START-TIME
+MOVE 20250107    TO NCCRUISE.END-DATE
+MOVE 200000      TO NCCRUISE.END-TIME
+MOVE 'Split'     TO NCCRUISE.START-HARBOR
+MOVE 'Venice'    TO NCCRUISE.DESTINATION-HARBOR
+MOVE 00000001    TO NCCRUISE.ID-YACHT
+MOVE 900.000     TO NCCRUISE.PRICE-1W
+MOVE 1600.000    TO NCCRUISE.PRICE-2W
+MOVE 2200.000    TO NCCRUISE.PRICE-3W
+STORE NCCRUISE
+END OF TRANSACTION
+*
+/* Cruise 8: Planned, Barcelona->Marseille, Poseidon
+MOVE 10000008    TO NCCRUISE.CRUISE-ID
+MOVE '1'         TO NCCRUISE.CRUISE-STATUS
+MOVE 20240601    TO NCCRUISE.START-DATE
+MOVE 080000      TO NCCRUISE.START-TIME
+MOVE 20240615    TO NCCRUISE.END-DATE
+MOVE 180000      TO NCCRUISE.END-TIME
+MOVE 'Barcelona' TO NCCRUISE.START-HARBOR
+MOVE 'Marseille' TO NCCRUISE.DESTINATION-HARBOR
+MOVE 00000002    TO NCCRUISE.ID-YACHT
+MOVE 1100.000    TO NCCRUISE.PRICE-1W
+MOVE 2000.000    TO NCCRUISE.PRICE-2W
+MOVE 2800.000    TO NCCRUISE.PRICE-3W
+STORE NCCRUISE
+END OF TRANSACTION
+*
+END
+```
+
+---
+
+## Data Loading Instructions
+
+### Method 1: Natural Program
+
+1. Save the STORE statements above as two separate Natural programs (e.g., `NCTDYAC` for yachts and `NCTDCRU` for cruises) in the NTCRUISE library.
+2. Catalog and execute each program from the Natural command line:
+   ```
+   NTCRUISE> NCTDYAC
+   NTCRUISE> NCTDCRU
+   ```
+3. Verify the data:
+   ```
+   NTCRUISE> LIST NCCRUISE
+   NTCRUISE> LIST NCYACHT
+   ```
+
+### Method 2: Adabas Direct Load (ADALOD)
+
+1. Export the data to sequential format using the Adabas ADALOD utility.
+2. Create FDT-compatible load files for files 041 and 042.
+3. Run ADALOD for each file:
+   ```
+   ADALOD LOAD FILE=041 DBID=012
+   ADALOD LOAD FILE=042 DBID=012
+   ```
+
+### Method 3: Adabas REST API
+
+If Adabas REST admin is available (default: `http://localhost:8190`):
+
+```bash
+# Store a yacht record
+curl -X POST http://localhost:8190/db/012/file/042 \
+  -H "Content-Type: application/json" \
+  -d '{"DB":"00000001","DC":"Cassandra","DD":"Sailing Yacht","DF":"15.50","DG":"4.80","DH":"2.10","DI":"120","DJ":"50","DK":"1.95","DL":"8"}'
+```
+
+---
+
+## Verification Queries
+
+After loading, run these Natural statements to verify the data:
+
+```natural
+/* Count NCCRUISE records
+READ NCCRUISE
+  AT END OF DATA
+    WRITE 'Total NCCRUISE records:' *COUNTER
+  END-ENDDATA
+END-READ
+
+/* Count NCYACHT records
+READ NCYACHT
+  AT END OF DATA
+    WRITE 'Total NCYACHT records:' *COUNTER
+  END-ENDDATA
+END-READ
+
+/* Verify specific cruise
+FIND NCCRUISE CRUISE-ID = 10000001
+  DISPLAY CRUISE-ID CRUISE-STATUS START-DATE END-DATE START-HARBOR DESTINATION-HARBOR ID-YACHT
+END-FIND
+
+/* Verify yacht resolution
+FIND NCCRUISE CRUISE-ID = 10000006
+  FIND NCYACHT YACHT-ID = NCCRUISE.ID-YACHT
+    IF NO RECORDS FOUND
+      WRITE 'No yacht found for ID-YACHT:' NCCRUISE.ID-YACHT '(expected for test)'
+    END-NOREC
+    DISPLAY YACHT-ID YACHT-NAME
+  END-FIND
+END-FIND
+```
+
+**Expected Results:**
+- 8 NCCRUISE records
+- 5 NCYACHT records
+- Cruise 10000006 has no matching yacht (ID-YACHT = 00000099)
+- Cruise 99999999 does not exist (used for negative testing in TC-03)
